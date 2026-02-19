@@ -14,7 +14,7 @@ export default function Home() {
   }
   
   if (!user?.languages || user.languages.length === 0) {
-    redirect("/setlang");
+    redirect("/set-user-params");
   }
   
   return <HomeComponent/>

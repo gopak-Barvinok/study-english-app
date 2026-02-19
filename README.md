@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Study English Application
 
-## Getting Started
+Real-time video calling application with automatic transcription and vocabulary tracking for language learners.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Video Calls** - HD video/audio with Stream SDK
+- **Live Transcription** - Automatic speech-to-text during calls for students
+- **Vocabulary Tracking** - Auto-generates flashcards from conversation transcripts using AI
+- **User Profiles** - Google OAuth with personalized learning stats
+- **Review System** - Interactive flashcards for learned vocabulary
+- **Room Management** - Create and join study sessions
+- **Role-based Access** - Separate experiences for Teachers and Students
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS, DaisyUI
+- **Video**: Stream Video SDK
+- **Database**: PostgreSQL with Prisma ORM
+- **Auth**: NextAuth.js v5 (Google OAuth)
+- **AI**: Groq SDK for flashcard generation
+- **Deployment**: Vercel/NGROK for webhooks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📦 Installation
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+- Node.js 18+
+- PostgreSQL database
+- Google OAuth credentials
+- Stream API keys
+- Groq API key
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone repository**
 
-## Deploy on Vercel
+   ```bash
+   git clone https://github.com/gopak-Barvinok/study-english-app.git
+   cd study-english-app
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. **Install dependencies**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   Create a `.env.local` file in the root directory and add your API keys:
+
+   ```env
+   DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+   NEXTAUTH_SECRET="your-nextauth-secret"
+   NEXTAUTH_URL="http://localhost:3000"
+   GOOGLE_CLIENT_ID="your-google-client-id"
+   GOOGLE_SECRET="your-google-client-secret"
+   STREAM_API_KEY="your-stream-api-key"
+   STREAM_API_SECRET="your-stream-api-secret"
+   GROQ_API_KEY="your-groq-api-key"
+   ```
+
+4. **Set up database**
+   Start PostgreSQL (using Docker Compose):
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   Run Prisma migrations:
+
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. **Run development server**
+
+   ```bash
+   npm run dev
+   ```
+
+6. **Access the application**
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Additional Scripts
+
+- `npm run tunnel` - Start ngrok tunnel for webhooks
+- `npm run build` - Build for production
+- `npm run start` - Start production server

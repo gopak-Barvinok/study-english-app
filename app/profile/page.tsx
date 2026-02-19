@@ -18,7 +18,7 @@ export default function ProfilePage() {
         </div>
         <div className="flex gap-1 items-baseline">
           <h1 className="card-title">ID:</h1>
-          <p>{user?.userId}</p>
+          <p>{user?.id}</p>
         </div>
         <div className="flex gap-1 items-baseline">
           <h1 className="card-title">Languages:</h1>

@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js" 
+  engineType = "binary"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id               String    @id @default(cuid())
+  email            String?   @unique
+  name             String?
+  surname          String?
+  username         String?   @unique
+  image            String?
+  emailVerified    DateTime? @map("email_verified")
+  languages        String[]
+  registrationDate DateTime? @default(now())
+  isAdmin          Boolean?  @default(false)
+  role             String?
+  generatedCards  Json[]
+
+  @@map("users")
+}
+
+model Room {
+  room_id         String   @id
+  participants_id String[]
+  created_at      DateTime @default(now())
+  transcribation   String[]
+
+  @@map("rooms")
+}

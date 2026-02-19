@@ -13,7 +13,15 @@ export default function TabBarWrapper() {
 
     if(!session) return null;
 
-    if (!user?.languages || user.languages.length === 0 || pathName === `/calling/${room}`) return null;
+    if (
+        !user?.languages 
+        || 
+        user.languages.length === 0 
+        || 
+        pathName === `/calling/${room}`
+        ||
+        !user?.role
+    ) return null;
 
     return <TabBar/>
 }

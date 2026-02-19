@@ -1,29 +1,34 @@
 "use client";
 
 import { useUserStore } from "@/store/userStore";
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
 import {
   StreamVideoClient,
   StreamVideo,
   User as StreamUser,
 } from "@stream-io/video-react-sdk";
 import { useEffect, useState, type ReactNode } from "react";
-import { User } from "@/types/user";
+import { fetchPost } from "@/utils/utils";
+import { useSession } from "next-auth/react";
 
 type Props = {
   children: ReactNode;
 };
 
-const SessionSync = () => {
+const UserSessionSync = () => {
   const { data: session } = useSession();
-  const setUser = useUserStore((state) => state.setUser);
+  const loadUser = useUserStore((state) => state.loadUser);
+  const user = useUserStore((state) => state.user);
+
   useEffect(() => {
-    if (session?.user) {
-      setUser(session.user as User);
-    } else {
-      setUser(null);
+    if(session?.user.id) {
+      console.log("Session User:", session.user);
+      loadUser(session.user.id)
+      .then(() => {
+        console.log("User in store:", user);
+      });
     }
-  }, [session, setUser]);
+  }, [session, loadUser]);
 
   return null;
 };
@@ -38,19 +43,14 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
       if (!user) return;
 
       try {
-        const response = await fetch("/api/generate-token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.userId }),
+        const { apiKey, token } = await fetchPost("/api/generate-token", {
+          userId: user.id,
         });
 
-        if (!response.ok) throw new Error("Token generation failed");
-
-        const { apiKey, token } = await response.json();
         const newClient = new StreamVideoClient({
           apiKey,
           user: {
-            id: user.userId,
+            id: user.id,
             name: user.name,
           } as StreamUser,
           token,
@@ -65,10 +65,12 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
     initClient();
 
     return () => {
-      client?.disconnectUser();
+      client
+        ?.disconnectUser()
+        .catch((err) => console.error("Failed to initialize the client:", err));
       setClient(null);
     };
-  }, [user?.userId]);
+  }, [user?.id]);
 
   return <StreamVideo client={client!}>{children}</StreamVideo>;
 };
@@ -77,7 +79,7 @@ export default function Providers({ children }: Props) {
   return (
     <SessionProvider>
       <StreamVideoProvider>
-        <SessionSync />
+        <UserSessionSync />
         {children}
       </StreamVideoProvider>
     </SessionProvider>

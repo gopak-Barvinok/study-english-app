@@ -32,6 +32,7 @@ export default function AsyncButton<TResult = void>({
       disabled={isLoading}
       onClick={handleClick}
     >
+      {isLoading && <span className="loading loading-spinner"/>}
       {isLoading ? isLoadingText : isNormalText}
     </button>
   );

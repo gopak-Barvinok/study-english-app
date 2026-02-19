@@ -12,8 +12,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY!;
-        const apiSecret = process.env.NEXT_PUBLIC_STREAM_SECRET!;
+        const apiKey = process.env.STREAM_API_KEY!;
+        const apiSecret = process.env.STREAM_SECRET!;
 
         if (!apiKey || !apiSecret) {
             throw new Error('Stream credentials are not configured');

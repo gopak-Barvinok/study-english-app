@@ -1,2 +1,7 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+.str-video__participant-view {
+  width: 500px;
+  height: 450px;
+}

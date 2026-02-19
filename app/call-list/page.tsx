@@ -3,30 +3,32 @@
 import Loading from "@/components/procedures/Loading";
 import { generateCallId } from "@/scripts/client";
 import { useUserStore } from "@/store/userStore";
-import { User } from "@/types/user";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
-import { dateNow } from "@/utils/server";
 import AsyncButton from "@/components/buttons/AsyncBtn";
+import { fetchPost } from "@/utils/utils";
 
 export default function CallsPage() {
-  const [usersList, setUsersList] = useState<User[]>([]);
+  const [usersList, setUsersList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useUserStore();
 
   useEffect(() => {
     if (user) {
-      fetch("/api/user", {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
+      const usersRequest = {
+        role: "Teacher",
+        exceptCurrentUserId: user.id,
+        select: {
+          id: true,
+          name: true,
+          surname: true,
+          languages: true,
+          role: true,
         },
-      })
-        .then((data) => data.json())
-        .then((resp) => {
-          const users: User[] = resp.users.filter(
-            (u: User) => u.userId !== user.userId,
-          );
+      };
+      fetchPost("/api/user-list", usersRequest)
+        .then((users) => {
+          console.log(users);
           setUsersList(users);
           setIsLoading(false);
         })
@@ -34,19 +36,16 @@ export default function CallsPage() {
     }
   }, [user]);
 
-  const handleRedirectToClassRoom = async (userId: string) => {
+  const handleRedirectToClassRoom = async (participantUserId: string) => {
     const callId = generateCallId();
     const body = {
-      roomId: callId,
-      partisipantsId: [user!.userId, userId],
-      createdAt: dateNow(),
+      room_id: callId,
+      participants_id: [user!.id, participantUserId],
+      created_at: new Date(),
     };
 
-    //Создаём комнату
-    fetch("/api/room", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }).then(_ => redirect(`/calling/${callId}`));
+    fetchPost("/api/room", body)
+    .then(() => redirect(`/calling/${callId}`));
   };
 
   if (isLoading) return <Loading />;
@@ -55,10 +54,7 @@ export default function CallsPage() {
     <div>
       {usersList.length > 0 ? (
         usersList.map((user) => (
-          <div
-            key={user.userId}
-            className="card bg-gray-100 w-95 shadow-sm mb-3"
-          >
+          <div key={user.id} className="card bg-gray-100 w-95 shadow-sm mb-3">
             <div className="card-body text-center items-center">
               <div className="flex gap-1 items-baseline">
                 <h1 className="card-title">Name:</h1>
@@ -70,14 +66,14 @@ export default function CallsPage() {
               </div>
               <div className="flex gap-1 items-baseline">
                 <h1 className="card-title">Languages:</h1>
-                <p> {JSON.parse(user.languages.toString()).join(" ")}</p>
+                <p> {user.languages.join(" ")}</p>
               </div>
               <div className="card-actions">
-                <AsyncButton 
-                className="btn btn-accent w-30"
-                isLoadingText="Processing..."
-                isNormalText="Create room"
-                func={() => handleRedirectToClassRoom(user.userId)}
+                <AsyncButton
+                  className="btn btn-accent w-30"
+                  isLoadingText="Processing..."
+                  isNormalText="Create room"
+                  func={() => handleRedirectToClassRoom(user.id)}
                 />
               </div>
             </div>

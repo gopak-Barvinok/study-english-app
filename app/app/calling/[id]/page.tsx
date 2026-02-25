@@ -2,7 +2,6 @@
 
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import Loading from "@/components/procedures/Loading";
-import { useRoomStore } from "@/store/userStore";
 import {
   useStreamVideoClient,
   Call,
@@ -21,7 +20,6 @@ export default function CallingPage() {
   const client = useStreamVideoClient();
   const [call, setCall] = useState<Call | null>(null);
   const callRef = useRef<Call | null>(null);
-  const setRoom = useRoomStore((state) => state.setRoom);
 
   useEffect(() => {
     if (!client) return;
@@ -56,7 +54,6 @@ export default function CallingPage() {
         }
 
         setCall(myCall);
-        setRoom(callId);
         callRef.current = myCall;
       } catch (e) {
         console.error("Failed to initialize call:", e);
@@ -83,7 +80,7 @@ export default function CallingPage() {
       setCall(null);
       callRef.current = null;
     };
-  }, [client, callId, client]);
+  }, [client, callId]);
 
   if (!call) return <Loading />;
 

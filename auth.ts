@@ -18,7 +18,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile, trigger, session }) {
+    async jwt({ token, account, profile, trigger }) {
       if (account && profile) {
         const email = profile.email as string | undefined;
 

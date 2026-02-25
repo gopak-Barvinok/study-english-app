@@ -1,7 +1,7 @@
 "use client";
 
 import { useUserStore } from "@/store/userStore";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Loading from "@/components/procedures/Loading";
 import GeneratingCardsComponent from "@/components/GeneratingCardComponent";
 import { fetchGet } from "@/utils/utils";

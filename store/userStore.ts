@@ -44,13 +44,3 @@ export const useUserStore = create<UserStore>((set, get) => ({
         }
     }
 }));
-
-interface RoomStore {
-    room: string | null;
-    setRoom: (room: string | null) => void;
-};
-
-export const useRoomStore = create<RoomStore>((set) => ({
-    room: null,
-    setRoom: (room) => set({ room }),
-}));

@@ -7,7 +7,7 @@ export default function ProfilePage() {
   const { user } = useUserStore();
 
   return (
-    <div className="card bg-base-200 w-96 shadow-sm">
+    <div className="card bg-base-100 w-96 shadow-sm">
       <div className="card-body items-center text-center">
         <h1 className="card-title">
           Welcome, {user?.name} {user?.surname}

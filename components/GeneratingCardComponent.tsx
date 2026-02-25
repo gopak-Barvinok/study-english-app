@@ -1,44 +1,50 @@
-import { getRandomNonZeroIndex } from "@/scripts/client";
 import { useEffect, useState } from "react";
-import AsyncButton from "./buttons/AsyncBtn";
+import CardComponent from "./CardComponent";
 
 type GeneratingCardsComponentProps = {
   cards: any[];
-}
+};
 
 export default function GeneratingCardsComponent({
-  cards
+  cards,
 }: GeneratingCardsComponentProps) {
-  const [randomIndex, setRandomIndex] = useState<number>();
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    return cards.length > 0 ? 0 : -1;
+  });
+  const [text, setText] = useState<string>("");
+  const [accept, setAccept] = useState<boolean>(false);
 
-  const reloadCard = async () => {
-    const rndInd = await getRandomNonZeroIndex(cards.length) as number;
-    setRandomIndex(rndInd);
-  }
+  const acceptCard = () => {
+    setAccept(true);
+  };
 
   useEffect(() => {
-    reloadCard();
-  }, []);
+    if (cards.length > 0 && currentIndex === -1) {
+      setCurrentIndex(0);
+    }
+  }, [cards, currentIndex]);
+
+  const reloadCard = () => {
+    if (cards.length === 0) return;
+    setAccept(false);
+    setCurrentIndex((current) => (current + 1) % cards.length);
+  };
 
   return (
-    <div className="flex flex-col justify-center items-center gap-4">
-      <div>
-        {randomIndex && (
-          <div>
-            <p>Back: {cards[randomIndex].back}</p>
-            <p>Example: {cards[randomIndex].example}</p>
-            <p>Front: {cards[randomIndex].front}</p>
-            <p>Translation: {cards[randomIndex].translation}</p>
-          </div>
-        )}
-      </div>
-      {/* <button className="btn btn-success" onClick={reloadCard}>Reload card</button> */}
-      <AsyncButton
-      func={reloadCard}
-      isLoadingText="Loading"
-      isNormalText="Reload card"
-      className="btn btn-success"
-      />
+    <div>
+      {cards && (
+        <CardComponent
+          back={cards[currentIndex].back}
+          example={cards[currentIndex].example}
+          front={cards[currentIndex].front}
+          translate={cards[currentIndex].translation}
+          reloadCard={reloadCard}
+          accept={accept}
+          acceptCard={acceptCard}
+          text={text}
+          setText={setText}
+        />
+      )}
     </div>
   );
 }

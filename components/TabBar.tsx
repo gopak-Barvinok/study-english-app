@@ -13,24 +13,24 @@ export default function TabBar() {
         name="tabs"
         className="tab"
         aria-label="Calls"
-        checked={pathname === '/call-list'}
-        onChange={() => router.push('/call-list')}
+        checked={pathname === '/app/call-list'}
+        onChange={() => router.push('/app/call-list')}
       />
       <input 
         type="radio" 
         name="tabs" 
         className="tab" 
         aria-label="Review" 
-        checked={pathname === '/review'}
-        onChange={() => router.push('/review')}
+        checked={pathname === '/app/review'}
+        onChange={() => router.push('/app/review')}
       />
       <input 
         type="radio" 
         name="tabs" 
         className="tab" 
         aria-label="Profile" 
-        checked={pathname === '/profile'}
-        onChange={() => router.push('/profile')}
+        checked={pathname === '/app/profile'}
+        onChange={() => router.push('/app/profile')}
       />
     </div>
   );

@@ -45,7 +45,9 @@ export default function CallsPage() {
     };
 
     fetchPost("/api/room", body)
-    .then(() => redirect(`/calling/${callId}`));
+    .then(() => {
+      return redirect(`/app/calling/${callId}`);
+    });
   };
 
   if (isLoading) return <Loading />;
@@ -54,7 +56,7 @@ export default function CallsPage() {
     <div>
       {usersList.length > 0 ? (
         usersList.map((user) => (
-          <div key={user.id} className="card bg-gray-100 w-95 shadow-sm mb-3">
+          <div key={user.id} className="card bg-base-100 w-95 shadow-sm mb-3">
             <div className="card-body text-center items-center">
               <div className="flex gap-1 items-baseline">
                 <h1 className="card-title">Name:</h1>

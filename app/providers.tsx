@@ -21,10 +21,9 @@ const UserSessionSync = () => {
   const user = useUserStore((state) => state.user);
 
   useEffect(() => {
-    if(session?.user.id) {
+    if (session?.user.id) {
       console.log("Session User:", session.user);
-      loadUser(session.user.id)
-      .then(() => {
+      loadUser(session.user.id).then(() => {
         console.log("User in store:", user);
       });
     }

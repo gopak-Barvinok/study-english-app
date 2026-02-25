@@ -20,7 +20,7 @@ export default function SetUserParamsPage() {
 
   useEffect(() => {
     if (user?.languages && user.languages.length > 0 && user.role) {
-      redirect("/");
+      return redirect("/app");
     }
   }, [user]);
 

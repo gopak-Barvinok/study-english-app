@@ -1,5 +1,3 @@
-"use client";
-
 export const fetchGet = async (
     url: string,
     headers?: Record<string, string>,

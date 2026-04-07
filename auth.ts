@@ -1,7 +1,8 @@
 import Google from 'next-auth/providers/google';
 import NextAuth, { NextAuthConfig } from 'next-auth';
 import { createNewUser, getUserByEmail, updateUserInDatabase } from './lib/database';
-import { DatabaseUser } from './types/databaseTypes';
+import type { User as DatabaseUser } from './generated/prisma';
+import "dotenv/config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -38,12 +39,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               surname: profile.name?.split(" ")[1] || null,
               username: email.split('@')[0],
               image: profile.avatar_url || profile.picture || null,
-              languages: [],
               isAdmin: false,
               registrationDate: new Date(),
               emailVerified: profile.email_verified ? new Date() : null,
-              role: null,
-              generatedCards: [],
+              age: null,
+              location: null,
+              timezone: null,
             } as DatabaseUser,
           );
 

@@ -72,9 +72,7 @@ export default function CallingPage() {
           callState !== CallingState.LEFT &&
           callState !== CallingState.RECONNECTING_FAILED
         ) {
-          currentCall
-            .leave()
-            .catch(() => {});
+          currentCall.leave().catch(() => {});
         }
       }
       setCall(null);

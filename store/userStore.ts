@@ -1,11 +1,13 @@
 import { create } from 'zustand';
-import { DatabaseUser } from '@/types/databaseTypes';
+// import type { User as DatabaseUser } from '@/generated/prisma';
 import { fetchGet, fetchPost } from '@/utils/utils';
 
 interface UserStore {
-    user: DatabaseUser | null;
+    // user: DatabaseUser | null;
+    user: any;
     loadUser: (userId: string) => Promise<void>;
-    updateUser: (data: Partial<DatabaseUser>) => Promise<void>;
+    // updateUser: (data: Partial<DatabaseUser>) => Promise<void>;
+    updateUser: (data: any) => Promise<void>;
 };
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -33,7 +35,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
             id: userId,
             params: data,
         }
-        
+
+        console.log("Data:", data);
+
         try {
             const resp = await fetchPost("/api/user-params", newBody);
             if (resp.status !== 200) {

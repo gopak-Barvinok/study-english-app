@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserById, updateUserInDatabase } from "@/lib/database";
+import { createNewLanguages, getUserById, updateUserInDatabase } from "@/lib/database";
 
 export async function GET(req: NextRequest) {
     const userId = req.headers.get("X-User-Id") as string;
@@ -9,8 +9,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const {id, params} = await req.json();
-    await updateUserInDatabase(id, params);
+    const { id, params } = await req.json();
+    const { languages, ...restParams } = params;
+    await updateUserInDatabase(id, restParams);
+    await createNewLanguages(id, languages);
 
     return NextResponse.json({status: 200});
 }

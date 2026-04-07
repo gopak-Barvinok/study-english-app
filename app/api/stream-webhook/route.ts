@@ -1,4 +1,5 @@
-import { inputGeneratedCards, requestRoomParticipants, updateTranscribation } from "@/lib/database";
+import { createAndUpdateMessages, updateTranscribation } from "@/lib/database";
+//inputGeneratedCards, requestRoomParticipants,
 import { generateFlashCards } from "@/lib/groq";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -39,11 +40,22 @@ export async function POST(req: NextRequest) {
                 console.log("Parsed transcription segments:", sentences);
                 await updateTranscribation(roomId, sentences);
                 const cardsData = await generateFlashCards(sentences) as any[];
-                const participants = await requestRoomParticipants(roomId);
-                await inputGeneratedCards(participants?.participants_id!, cardsData);
+                // const participants = await requestRoomParticipants(roomId);
+                // await inputGeneratedCards(participants?.participants_id!, cardsData);
                 break;
             case 'call.transcription_failed':
                 console.log("Transcription failed", event);
+                break;
+            case 'message.new':
+                const { message, channelId } = event;
+                const dataInput = {
+                    id: message.id,
+                    text: message.text,
+                    chatId: channelId,
+                    senderId: message.user.id,
+                    createdAt: new Date(message.created_at),
+                };
+                await createAndUpdateMessages(dataInput);
                 break;
         }
         return NextResponse.json({ status: 200 });

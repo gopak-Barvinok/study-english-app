@@ -3,5 +3,10 @@
 import LendingComponent from "@/components/LendingComponent";
 
 export default function Home() {
-  return <LendingComponent/>
+  return (
+    <div className="min-h-screen">
+      <LendingComponent/>
+    </div>
+  )
+  
 }

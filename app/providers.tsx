@@ -2,14 +2,12 @@
 
 import { useUserStore } from "@/store/userStore";
 import { SessionProvider } from "next-auth/react";
-import {
-  StreamVideoClient,
-  StreamVideo,
-  User as StreamUser,
-} from "@stream-io/video-react-sdk";
+import { StreamVideoClient, StreamVideo } from "@stream-io/video-react-sdk";
+import { StreamChat } from "stream-chat";
 import { useEffect, useState, type ReactNode } from "react";
 import { fetchPost } from "@/utils/utils";
 import { useSession } from "next-auth/react";
+import { Chat } from "stream-chat-react";
 
 type Props = {
   children: ReactNode;
@@ -32,9 +30,15 @@ const UserSessionSync = () => {
   return null;
 };
 
-const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
+const StreamProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUserStore();
-  const [client, setClient] = useState<StreamVideoClient | null>(null);
+  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(
+    null,
+  );
+  const [chatClient] = useState(() =>
+    StreamChat.getInstance(process.env.NEXT_PUBLIC_STREAM_API_KEY!),
+  );
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const initClient = async () => {
@@ -51,11 +55,20 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
           user: {
             id: user.id,
             name: user.name,
-          } as StreamUser,
+          },
           token,
         });
 
-        setClient(newClient);
+        await chatClient.connectUser(
+          {
+            id: user.id,
+            name: user.name ?? undefined,
+          },
+          token,
+        );
+
+        setVideoClient(newClient);
+        setReady(true);
       } catch (error) {
         console.error("Failed to initialize Stream client:", error);
       }
@@ -64,23 +77,35 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
     initClient();
 
     return () => {
-      client
+      videoClient
         ?.disconnectUser()
-        .catch((err) => console.error("Failed to initialize the client:", err));
-      setClient(null);
+        .catch((err) =>
+          console.error("Failed to initialize the video client:", err),
+        );
+      chatClient
+        .disconnectUser()
+        .catch((err) =>
+          console.error("Failed to initialize the chat client:", err),
+        );
+      setVideoClient(null);
+      setReady(false);
     };
   }, [user?.id]);
 
-  return <StreamVideo client={client!}>{children}</StreamVideo>;
+  return (
+    <StreamVideo client={videoClient!}>
+      <Chat client={chatClient}>{children}</Chat>
+    </StreamVideo>
+  );
 };
 
 export default function Providers({ children }: Props) {
   return (
     <SessionProvider>
-      <StreamVideoProvider>
+      <StreamProvider>
         <UserSessionSync />
         {children}
-      </StreamVideoProvider>
+      </StreamProvider>
     </SessionProvider>
   );
 }

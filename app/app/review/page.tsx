@@ -13,7 +13,6 @@ export default function ReviewPage() {
 
   useEffect(() => {
     const fetchCards = async () => {
-      
       if (!user?.generatedCards?.length) {
         setCards([]);
         setLoading(false);
@@ -22,13 +21,12 @@ export default function ReviewPage() {
 
       try {
         const response = await fetchGet("/api/request-cards", {
-          'X-User-Id': user.id,
+          "X-User-Id": user.id,
         });
-        setCards(prevCards => [
+        setCards((prevCards) => [
           ...(prevCards || []),
           ...response.generatedCards,
         ]);
-
       } catch (error) {
         console.error("Error:", error);
       } finally {
@@ -44,7 +42,7 @@ export default function ReviewPage() {
   return (
     <div>
       {cards && cards.length > 0 ? (
-        <GeneratingCardsComponent cards={cards}/>
+        <GeneratingCardsComponent cards={cards} />
       ) : (
         <h1>No cards to review yet</h1>
       )}

@@ -1,9 +1,8 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import TabBar from "./TabBar";
 import { usePathname } from "next/navigation";
-import LendingFooter from "./LendingFooter";
+import { classNameFooter } from "@/lib/classNames";
 
 export default function FooterWrapper() {
   const { data: session } = useSession();
@@ -11,13 +10,16 @@ export default function FooterWrapper() {
 
   if (
     !session ||
-    pathName === "/app/login" ||
-    pathName === "/app/set-user-params" ||
-    pathName.startsWith("/app/calling/")
+    pathName !== "/"
   )
     return null;
 
-  if (pathName === "/") return <LendingFooter />;
-
-  return <TabBar />;
+  return (
+      <aside className={classNameFooter}>
+        <p>
+          Copyright © {new Date().getFullYear()} - All right reserved by StudyApp
+          Industries Ltd
+        </p>
+      </aside>
+  );
 }

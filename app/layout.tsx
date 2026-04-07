@@ -3,6 +3,7 @@ import "./globals.css";
 import Providers from "./providers";
 import FooterWrapper from "@/components/FooterWrapper";
 import HeaderWrapper from "@/components/HeaderWrapper";
+import { classNameBody, classNameMain } from "@/lib/classNames";
 
 export const metadata: Metadata = {
   title: "AI English Study App",
@@ -16,15 +17,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">
+      <body className={classNameBody}>
         <Providers>
             <header>
               <HeaderWrapper/>
             </header>
-            <main className="flex-1 flex items-center justify-center">
+            <main className={classNameMain}>
               {children}
             </main>
-            <footer className="mt-auto inset-shadow-sm">
+            <footer>
               <FooterWrapper />
             </footer>
         </Providers>

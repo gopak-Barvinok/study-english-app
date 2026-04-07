@@ -1,7 +1,7 @@
 generator client {
-  provider = "prisma-client-js" 
+  provider   = "prisma-client-js"
   engineType = "binary"
-  output   = "../generated/prisma"
+  output     = "../generated/prisma"
 }
 
 datasource db {
@@ -9,27 +9,106 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(cuid())
-  email            String?   @unique
+  id               String         @id @default(cuid())
+  email            String?        @unique
   name             String?
   surname          String?
-  username         String?   @unique
+  username         String?        @unique
   image            String?
-  emailVerified    DateTime? @map("email_verified")
-  languages        String[]
-  registrationDate DateTime? @default(now())
-  isAdmin          Boolean?  @default(false)
-  role             String?
-  generatedCards  Json[]
+  emailVerified    DateTime?      @map("email_verified")
+  languages        Language[]
+  age              String?
+  location         String?
+  timezone         String?
+  registrationDate DateTime?      @default(now())
+  isAdmin          Boolean?       @default(false)
+  teacher          Teacher?
+  event            ScheduleSlot[]
+  // generatedCards   Json[]
+  rooms            Room[]         @relation("RoomParticipants")
+  chats            Chat[]         @relation("ChatParticipants")
+  messages         Message[]
 
   @@map("users")
 }
 
+model Language {
+  id           String  @id @default(cuid())
+  userId       String
+  user         User    @relation(fields: [userId], references: [id])
+  languageName String?
+  level        String?
+}
+
+model Teacher {
+  id                    String        @id
+  user                  User          @relation(fields: [id], references: [id])
+  teacherRating         Json[]
+  description           String?
+  writtingAboutYourself String?
+  experience            String?
+  certificates          Certificate[]
+  pricePerHour          String
+}
+
+model Certificate {
+  id          String  @id @default(cuid())
+  teacherId   String
+  teacher     Teacher @relation(fields: [teacherId], references: [id])
+  name        String?
+  year        String?
+  description String?
+  scan        String?
+}
+
+model Chat {
+  id        String   @id
+  createdAt DateTime @default(now())
+
+  participants User[]    @relation("ChatParticipants")
+  messages     Message[]
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation(fields: [senderId], references: [id])
+}
+
 model Room {
-  room_id         String   @id
-  participants_id String[]
-  created_at      DateTime @default(now())
-  transcribation   String[]
+  room_id         String          @id
+  participants    User[]          @relation("RoomParticipants")
+  transcribation  String[]
+  generated_cards GeneratedCard[]
+  slot  String?
 
   @@map("rooms")
+}
+
+model GeneratedCard {
+  id          String  @id @default(cuid())
+  roomId      String
+  room        Room    @relation(fields: [roomId], references: [room_id])
+  front       String?
+  back        String?
+  example     String?
+  translation String?
+  type        String?
+
+  @@map("generatedCard")
+}
+
+model ScheduleSlot {
+  id     Int    @id @default(autoincrement())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  slot   String
+
+  @@map("scheduleSlot")
 }

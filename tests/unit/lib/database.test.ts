@@ -334,7 +334,7 @@ describe("getUserRooms", () => {
     expect(result).toEqual(rooms);
     expect(mockRoom.findMany).toHaveBeenCalledWith({
       where: { participants: { some: { id: "u1" } } },
-      include: { participants: true },
+      include: { participants: { include: { languages: true, teacher: true } } },
       orderBy: { slot: "asc" },
     });
   });

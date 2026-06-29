@@ -17,6 +17,39 @@ export const getUserById = async (id: string) => {
   });
 };
 
+export const getUserRooms = async (userId: string) => {
+  return await prisma.room.findMany({
+    where: {
+      participants: { some: { id: userId } },
+    },
+    include: {
+      participants: {
+        include: { languages: true, teacher: true },
+      },
+    },
+    orderBy: {
+      slot: "asc",
+    },
+  });
+};
+
+export const addTeacherRating = async (teacherId: string, rating: number, comment: string) => {
+  const teacher = await prisma.teacher.findUnique({ where: { id: teacherId } });
+  if (!teacher) return;
+
+  await prisma.teacher.update({
+    where: { id: teacherId },
+    data: {
+      teacherRating: [
+        ...(teacher.teacherRating as any[]),
+        { rating, comment, createdAt: new Date().toISOString() },
+      ],
+    },
+  });
+};
+
+
+
 export const createNewUser = async (user: any) => {
   return await prisma.user.create({
     data: {
@@ -76,13 +109,10 @@ export const updateCerteficatesInDatabase = async (id: string, certs: any[]) => 
 };
 
 export const updateTeacherInDatabase = async (id: string, data: any) => {
+  const { id: _, ...rest } = data;
   await prisma.teacher.update({
-    where: {
-      id: id,
-    },
-    data: {
-      ...data,
-    },
+    where: { id },
+    data: rest,
   });
 };
 
@@ -127,9 +157,41 @@ export const createScheduleInDatabase = async (userId: string, data: any[]) => {
   });
 }
 
-export const updateScheduleInDatabase = async (studentId: string, teacherId: string, roomId: string, slot: string) => {
-  
+export const updateScheduleInDatabase = async (userId: string, slots: string[]) => {
+  const existing = await prisma.scheduleSlot.findMany({
+    where: { userId },
+    select: { id: true, slot: true },
+  });
+
+  const existingSlots = new Set(existing.map((s) => s.slot));
+  const newSlots = new Set(slots);
+
+  const toDelete = existing
+    .filter((s) => !newSlots.has(s.slot))
+    .map((s) => s.id);
+
+  const toCreate = slots.filter((s) => !existingSlots.has(s));
+
+  if (toDelete.length > 0) {
+    await prisma.scheduleSlot.deleteMany({ where: { id: { in: toDelete } } });
+  }
+  if (toCreate.length > 0) {
+    await prisma.scheduleSlot.createMany({
+      data: toCreate.map((slot) => ({ userId, slot })),
+    });
+  }
 }
+
+export const findChatBetweenUsers = async (userId1: string, userId2: string) => {
+  return await prisma.chat.findFirst({
+    where: {
+      AND: [
+        { participants: { some: { id: userId1 } } },
+        { participants: { some: { id: userId2 } } },
+      ],
+    },
+  });
+};
 
 export const createChat = async (participantIds: string[], channelId: string) => {
   await prisma.chat.create({
@@ -164,6 +226,17 @@ export const createAndUpdateMessages = async (data: any) => {
     });
 }
 
+export const requestRoomParticipants = async (roomId: string) => {
+  return await prisma.room.findMany({
+    where: {
+      room_id: roomId
+    },
+    include: {
+      participants: true,
+    },
+  });
+}
+
 export const createRoom = async (roomId: string, participantIds: string[], slot: string) => {
   await prisma.room.create({
     data: {
@@ -182,6 +255,32 @@ export const createRoom = async (roomId: string, participantIds: string[], slot:
       slot,
     }
   })
+};
+
+export const requestGeneratedCards = async (userId: string) => {
+  return await prisma.generatedCard.findMany({
+    where: {
+      room: {
+        participants: {
+          some: { id: userId },
+        },
+      },
+    },
+  });
+};
+
+export const inputGeneratedCards = async (roomId: string, cards: any[]) => {
+  if (!cards.length) return;
+  await prisma.generatedCard.createMany({
+    data: cards.map((card) => ({
+      roomId,
+      front: card.front ?? null,
+      back: card.back ?? null,
+      example: card.example ?? null,
+      translation: card.translation ?? null,
+      type: card.type ?? null,
+    })),
+  });
 };
 
 export const updateTranscribation = async (room_id: string, transcribation: string[]) => {

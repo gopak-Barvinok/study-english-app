@@ -1,5 +1,4 @@
 import { returnLanguageWithLevels } from "@/scripts/client";
-import { useEffect, useState } from "react";
 
 type SetLanguageComponentProps = {
   pageIsReady: () => void;
@@ -18,71 +17,73 @@ export default function SetLanguageComponent({
   addLanguage,
   removeLanguage,
 }: SetLanguageComponentProps) {
-   const languagesList = ["English", "Spanish", "French", "German"];
-
-  const handleAccept = () => {
-    pageIsReady();
-  };
+  const languagesList = ["English", "Spanish", "French", "German"];
+  const allComplete = choosedLanguages.every((item) => item.language && item.level);
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="flex justify-center">Choose your languages</h1>
-      {choosedLanguages?.map((item, index) => (
-          <div key={index} className="flex flex-row gap-4">
-            <select
-              value={item.language || ""}
-              className="select select-neutral"
-              onChange={(e) => languageChange(index, e.target.value)}
-            >
-              <option value="" disabled={true}>Select a language</option>
-              {languagesList?.map((lang, i) => (
-                  <option key={i} value={lang}>
-                    {lang}
-                  </option>
-                ))}
-            </select>
-            {item.language && (
+    <div className="bg-base-200 border border-base-300 rounded-2xl p-8 shadow-xl w-full max-w-md animate-fade-in">
+      <div className="space-y-6">
+        <div className="space-y-1 text-center">
+          <h1 className="text-2xl font-bold">Choose your languages</h1>
+          <p className="text-base-content/50 text-sm">Select the languages you're learning</p>
+        </div>
+
+        <div className="space-y-3">
+          {choosedLanguages.map((item, index) => (
+            <div key={index} className="flex items-center gap-2">
               <select
-                value={item.level || ""}
-                className="select select-neutral"
-                onChange={(e) => levelChange(index, e.target.value)}
+                value={item.language || ""}
+                className="select select-bordered flex-1"
+                onChange={(e) => languageChange(index, e.target.value)}
               >
-                <option value="" disabled={true}>Select a level</option>
-                {returnLanguageWithLevels(item.language).map((lvl, i) => (
-                  <option key={i} value={lvl}>
-                    {lvl}
-                  </option>
+                <option value="" disabled>Select language</option>
+                {languagesList.map((lang, i) => (
+                  <option key={i} value={lang}>{lang}</option>
                 ))}
               </select>
-            )}
-            {choosedLanguages[index].language &&
-              choosedLanguages[index].level 
-              &&
-              (
+
+              {item.language && (
+                <select
+                  value={item.level || ""}
+                  className="select select-bordered flex-1"
+                  onChange={(e) => levelChange(index, e.target.value)}
+                >
+                  <option value="" disabled>Level</option>
+                  {returnLanguageWithLevels(item.language).map((lvl, i) => (
+                    <option key={i} value={lvl}>{lvl}</option>
+                  ))}
+                </select>
+              )}
+
+              {item.language && item.level && (
                 <button
-                  className="btn btn-error"
+                  className="btn btn-ghost btn-sm text-error hover:bg-error/10 rounded-xl"
                   onClick={() => removeLanguage(index)}
                 >
-                  X
+                  ✕
                 </button>
               )}
-          </div>
-        ))}
-      {choosedLanguages.every((item) => item.language && item.level) && (
-        <button onClick={addLanguage} className="btn btn-success">
-          Add new language
+            </div>
+          ))}
+        </div>
+
+        {allComplete && (
+          <button
+            onClick={addLanguage}
+            className="btn btn-ghost btn-sm w-full border border-dashed border-base-300 rounded-xl hover:border-primary/50 hover:text-primary transition-colors duration-200"
+          >
+            + Add another language
+          </button>
+        )}
+
+        <button
+          onClick={pageIsReady}
+          disabled={!allComplete}
+          className="btn btn-primary w-full rounded-xl hover:-translate-y-0.5 transition-transform duration-200 disabled:opacity-40"
+        >
+          Continue
         </button>
-      )}
-      <button
-        onClick={handleAccept}
-        className={`btn btn-success ${
-          choosedLanguages.every((item) => item.language && item.level)
-            ? ""
-            : "btn-disabled"
-        }`}
-      >
-        Accept
-      </button>
+      </div>
     </div>
   );
 }

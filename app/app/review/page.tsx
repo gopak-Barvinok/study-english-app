@@ -12,39 +12,47 @@ export default function ReviewPage() {
   const { user } = useUserStore();
 
   useEffect(() => {
-    const fetchCards = async () => {
-      if (!user?.generatedCards?.length) {
-        setCards([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetchGet("/api/request-cards", {
-          "X-User-Id": user.id,
-        });
-        setCards((prevCards) => [
-          ...(prevCards || []),
-          ...response.generatedCards,
-        ]);
-      } catch (error) {
+    if (!user) return;
+    
+    fetchGet("/api/request-cards", {
+      "X-User-Id": user.id,
+    })
+      .then((response) => {
+        setCards(response);
+      })
+      .catch((error) => {
         console.error("Error:", error);
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-
-    fetchCards();
+      });
   }, [user]);
 
   if (loading) return <Loading />;
 
   return (
-    <div>
+    <div className="flex-1 flex flex-col">
       {cards && cards.length > 0 ? (
         <GeneratingCardsComponent cards={cards} />
       ) : (
-        <h1>No cards to review yet</h1>
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 text-base-content/40 animate-fade-in">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-12 h-12 opacity-30"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
+          </svg>
+          <p className="text-sm">No cards to review yet</p>
+          <p className="text-xs">Generate some cards to start reviewing</p>
+        </div>
       )}
     </div>
   );

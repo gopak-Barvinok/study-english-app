@@ -85,7 +85,9 @@ export default function CallingPage() {
   return (
     <StreamTheme>
       <StreamCall call={call}>
-        <VideoStatesHandler />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <VideoStatesHandler />
+        </div>
       </StreamCall>
     </StreamTheme>
   );

@@ -13,17 +13,16 @@ export async function generateFlashCards(texts: string[]) {
     3. Ensure the "example" is a natural English sentence.
     4. The "type" must be one of: "word", "phrase", "sentence", "phrasal_verb".
 
-    Return ONLY a JSON array of objects. 
-    Example format:
-    [
+    Return a JSON object with a "cards" key containing the array:
+    {"cards": [
       {
         "front": "persistent",
-        "back": "continuing firmly in a course of action in spite of difficulty",
+        "back": "continuing firmly in a course of action",
         "example": "He was persistent in his questioning.",
         "translation": "настійливий",
         "type": "word"
       }
-    ]
+    ]}
   `;
 
   try {
@@ -48,7 +47,7 @@ export async function generateFlashCards(texts: string[]) {
     if (!responseText) return [];
 
     const parsed = JSON.parse(responseText);
-    return Array.isArray(parsed) ? parsed : Object.values(parsed)[0];
+    return Array.isArray(parsed.cards) ? parsed.cards : [];
     
   } catch (error) {
     console.error("Groq API Error:", error);

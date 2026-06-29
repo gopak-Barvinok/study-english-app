@@ -1,7 +1,6 @@
 import { fetchGet } from "@/utils/utils";
 import { useEffect, useState } from "react";
 import AsyncButton from "./buttons/AsyncBtn";
-import { gmtOffsetToString } from "@/scripts/client";
 
 type SetLocationComponentProps = {
   pageIsReady: () => Promise<void>;
@@ -20,76 +19,66 @@ export default function SetLocationComponent({
   const [timezones, setTimezones] = useState<any[]>();
 
   useEffect(() => {
-    let countriesList: string[] = [];
-    fetchGet("https://restcountries.com/v3.1/all?fields=name").then((data) => {
-      countriesList = data.map((c: any) => {
-        return c.name.common;
-      });
-      countriesList.sort((a, b) => a.localeCompare(b));
-      setCountries(countriesList);
-    });
+    fetchGet("/api/get-countries")
+    .then((data) => {
+      setCountries(data);
+    })
   }, []);
 
   useEffect(() => {
-    if(choosedCountry) {
+    if (choosedCountry) {
       fetchGet("/api/get-timezone", {
         "X-Country": choosedCountry,
       }).then((tmz) => {
-        console.log(tmz.timezones.zones);
-        setTimezones(tmz.timezones.zones);
+        console.log("tmz: ", tmz);
+        setTimezones(tmz);
       });
     }
   }, [choosedCountry]);
 
-  const handleLocationChange = (location: string) => {
-    toggleLocation(location);
-  };
-
-  const handleTimezoneChange = (timezone: string) => {
-    toggleTimezone(timezone);
-  }
-
-  const handleAccept = async () => {
-    await pageIsReady();
-  };
-
   return (
-    <div className="flex flex-col gap-4">
-      <h1>Where are you from?</h1>
-      <select
-        defaultValue="Select location"
-        className="select select-neutral"
-        onChange={(e) => handleLocationChange(e.target.value)}
-      >
-        <option disabled={true}>Select location</option>
-        {countries &&
-          countries.map((country, i) => (
-            <option key={i} value={country}>
-              {country}
-            </option>
-          ))}
-      </select>
-      {choosedCountry && (
-        <div className="flex flex-col gap-4">
-          <h1>Select your timezone</h1>
+    <div className="bg-base-200 border border-base-300 rounded-2xl p-8 shadow-xl w-full max-w-sm animate-fade-in">
+      <div className="space-y-6">
+        <div className="space-y-1 text-center">
+          <h1 className="text-2xl font-bold">Where are you from?</h1>
+          <p className="text-base-content/50 text-sm">Used to schedule lessons in your timezone</p>
+        </div>
+
+        <div className="space-y-3">
           <select
-            defaultValue="Select timezone"
-            className="select select-neutral"
-            onChange={(e) => handleTimezoneChange(e.target.value)}
+            defaultValue="Select location"
+            className="select select-bordered w-full"
+            onChange={(e) => toggleLocation(e.target.value)}
           >
-            <option disabled={true}>Select timezone</option>
-            {timezones && timezones.map((timezone, i) => (
-              <option key={i} value={timezone.gmtOffset}>{gmtOffsetToString(timezone.gmtOffset)}</option>
+            <option disabled>Select location</option>
+            {countries?.map((country, i) => (
+              <option key={i} value={country}>{country}</option>
             ))}
           </select>
+
+          {choosedCountry && (
+            <select
+              defaultValue="Select timezone"
+              className="select select-bordered w-full animate-fade-in"
+              onChange={(e) => toggleTimezone(e.target.value)}
+            >
+              <option disabled>Select timezone</option>
+              {timezones?.map((timezone, i) => (
+                <option key={i} value={timezone}>
+                  {timezone}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
-      )}
-      <AsyncButton
-        func={handleAccept}
-        isLoadingText="Loading data"
-        isNormalText="Accept"
-        className="btn btn-success"
-      />
+
+        <AsyncButton
+          func={pageIsReady}
+          isLoadingText="Saving..."
+          isNormalText="Continue"
+          className="btn btn-primary w-full rounded-xl hover:-translate-y-0.5 transition-transform duration-200"
+        />
+      </div>
     </div>
   );
 }

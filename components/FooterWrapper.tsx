@@ -2,24 +2,16 @@
 
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { classNameFooter } from "@/lib/classNames";
 
 export default function FooterWrapper() {
   const { data: session } = useSession();
   const pathName = usePathname();
 
-  if (
-    !session ||
-    pathName !== "/"
-  )
-    return null;
+  if (!session || pathName !== "/") return null;
 
   return (
-      <aside className={classNameFooter}>
-        <p>
-          Copyright © {new Date().getFullYear()} - All right reserved by StudyApp
-          Industries Ltd
-        </p>
-      </aside>
+    <footer className="py-6 px-8 bg-base-200 border-t border-base-300 text-center text-base-content/40 text-sm">
+      © {new Date().getFullYear()} StudyApp — All rights reserved
+    </footer>
   );
 }

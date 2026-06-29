@@ -3,10 +3,18 @@
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 
+const NAV_ITEMS = [
+  { label: "Teachers", path: "/app/teachers-list" },
+  { label: "Review", path: "/app/review" },
+  { label: "Lessons", path: "/app/lessons" },
+  { label: "Chats", path: "/app/chats" },
+  { label: "Profile", path: "/app/profile" },
+];
+
 export default function HeaderWrapper() {
   const { data: session } = useSession();
   const pathName = usePathname();
-  const router = useRouter()
+  const router = useRouter();
 
   if (
     !session ||
@@ -18,59 +26,30 @@ export default function HeaderWrapper() {
     return null;
 
   return (
-    <div className="navbar bg-base-100 shadow-sm flex">
+    <div className="navbar bg-base-200/80 backdrop-blur-md border-b border-base-300 sticky top-0 z-50">
       <div className="navbar-start">
-        <a className="btn btn-ghost text-xl">StudyApp</a>
+        <span className="btn btn-ghost text-xl font-bold text-primary tracking-tight px-3">
+          StudyApp
+        </span>
       </div>
-      <div className="tabs tabs-box bg-base-100 navbar-center">
-        <input
-          type="radio"
-          name="tabs"
-          className="tab"
-          aria-label="Teachers"
-          checked={pathName === "/app/teachers-list"}
-          onChange={() => router.push("/app/teachers-list")}
-        />
-        <input
-          type="radio"
-          name="tabs"
-          className="tab"
-          aria-label="Review"
-          checked={pathName === "/app/review"}
-          onChange={() => router.push("/app/review")}
-        />
-        <input
-          type="radio"
-          name="tabs"
-          className="tab"
-          aria-label="Lessons"
-          checked={pathName === "/app/lessons"}
-          onChange={() => router.push("/app/lessons")}
-        />
-        <input
-          type="radio"
-          name="tabs"
-          className="tab"
-          aria-label="Chats"
-          checked={pathName === "/app/chats"}
-          onChange={() => router.push("/app/chats")}
-        />
-        <input
-          type="radio"
-          name="tabs"
-          className="tab"
-          aria-label="Profile"
-          checked={
-            pathName === "/app/profile"
-          }
-          onChange={() => router.push("/app/profile")}
-        />
+      <div className="navbar-center">
+        <div className="flex gap-1">
+          {NAV_ITEMS.map(({ label, path }) => (
+            <button
+              key={path}
+              onClick={() => router.push(path)}
+              className={`btn btn-sm rounded-xl transition-all duration-200 ${
+                pathName === path
+                  ? "btn-primary shadow-sm"
+                  : "btn-ghost text-base-content/60 hover:text-base-content"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="navbar-end">
-          {/* <button className="btn btn-success">
-            Teacher mode
-          </button> */}
-      </div>
+      <div className="navbar-end" />
     </div>
   );
 }

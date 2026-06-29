@@ -7,17 +7,11 @@ import { useEffect } from "react";
 import HomeComponent from "@/components/HomeComponent";
 
 export default function AppPage() {
-  const { data: session } = useSession();
   const { user } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {
-    if (!session) {
-      router.push("/app");
-    }
-  }, [session]);
-
-  useEffect(() => {
+    if(!user) return;
     if (
       !user?.languages ||
       user.languages.length === 0 ||

@@ -28,7 +28,6 @@ export default function CallLayout({ onLeave }: CallLayoutProps) {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div>Call Id: {callId}</div>
       <div className="flex flex-row gap-2">
         {remoteParticipants.map((participant) => (
           <ParticipantView
@@ -45,7 +44,12 @@ export default function CallLayout({ onLeave }: CallLayoutProps) {
         )}
       </div>
       <CallingControlsButtons/>
-      <button className="btn btn-error w-30" onClick={() => onLeave("leave")}>Finish call</button>
+      <button
+        className="btn btn-error rounded-xl px-8 hover:-translate-y-0.5 transition-transform duration-200"
+        onClick={() => onLeave("leave")}
+      >
+        Finish call
+      </button>
     </div>
   );
 }

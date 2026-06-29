@@ -1,19 +1,25 @@
-export const classNameBody = "h-screen flex flex-col overflow-hidden";
+export const classNameBody = "min-h-screen flex flex-col";
 
-// export const classNameMain = "";
+export const classNameMain = "flex-1 overflow-y-auto flex flex-col py-4";
 
-export const classNameMain = "flex-1 flex items-center justify-center py-4";
+export const classNameFooter = "";
 
-export const classNameFooter = "footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4";
+export function getScheduleCellClass(
+  isStudentSelected: boolean,
+  isSelected: boolean,
+  isClickable: boolean,
+  mode: "edit" | "select" | "watch",
+): string {
+  const base = "transition-colors duration-150";
 
-export function returnScheduleTable(isSelected: boolean, isClickable: boolean, mode: "edit" | "select" | "watch") {
-  return `transition-colors ${
-    isSelected ? "!bg-green-900/50" : "!bg-gray-500/20"
-  } ${
-    mode === "watch"
-      ? "cursor-default"
-      : isClickable
-        ? "cursor-pointer hover:bg-green-900/70"
-        : "cursor-not-allowed"
-  }`;
+  if (isStudentSelected) {
+    return `${base} bg-primary/40 ${isClickable ? "cursor-pointer hover:bg-primary/55" : "cursor-default"}`;
+  }
+  if (isSelected) {
+    return `${base} bg-success/20 ${isClickable ? "cursor-pointer hover:bg-success/35" : "cursor-default"}`;
+  }
+  if (mode === "watch") {
+    return `${base} bg-base-300/30 cursor-default`;
+  }
+  return `${base} bg-base-300/20 ${isClickable ? "cursor-pointer hover:bg-success/15" : "cursor-default"}`;
 }

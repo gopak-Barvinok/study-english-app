@@ -10,6 +10,12 @@ import { CertificateFile, Selected } from "@/types/c-types";
 import { fetchGet, fetchPost } from "@/utils/utils";
 import { useEffect, useState, useRef } from "react";
 
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="text-sm font-medium text-base-content/60">{children}</label>
+  );
+}
+
 export default function TeacherModePage() {
   const { user } = useUserStore();
   const [operation, setOperation] = useState<string>();
@@ -39,14 +45,7 @@ export default function TeacherModePage() {
   };
 
   const handleSaveTeacher = async () => {
-    if (
-      !description ||
-      !user ||
-      !writtingAboutYourself ||
-      !pricePerHour ||
-      !experience ||
-      !schedule
-    )
+    if (!description || !user || !writtingAboutYourself || !pricePerHour || !experience || !schedule)
       return;
 
     const certificatesList = await Promise.all(
@@ -54,16 +53,11 @@ export default function TeacherModePage() {
         if (cert.scan && typeof cert.scan !== "string") {
           const formData = new FormData();
           formData.append("scan", cert.scan);
-          const res = await fetch("/api/upload-certs", {
-            method: "POST",
-            body: formData,
-          });
+          const res = await fetch("/api/upload-certs", { method: "POST", body: formData });
           const data = await res.json();
           return { ...cert, scan: data.url };
-        } else if (cert.scan && typeof cert.scan === "string") {
-          return { ...cert };
         }
-        return { ...cert, scan: null };
+        return { ...cert, scan: typeof cert.scan === "string" ? cert.scan : null };
       }),
     );
 
@@ -80,7 +74,7 @@ export default function TeacherModePage() {
 
     const resp = await fetchPost("/api/teacher-params", newBody);
 
-    if (resp.status == 200) {
+    if (resp.status === 200) {
       setModal(true);
     } else {
       alert(resp.error);
@@ -98,14 +92,14 @@ export default function TeacherModePage() {
           setWrittingAboutYourself(teacher.writtingAboutYourself);
           setPricePerHour(teacher.pricePerHour);
           setExperience(teacher.experience);
-          setCertificates((_) => [
-            ...teacher.certificates.map((cert: CertificateFile) => ({
+          setCertificates(
+            teacher.certificates.map((cert: CertificateFile) => ({
               name: cert.name,
               year: cert.year,
               scan: cert.scan,
               description: cert.description,
             })),
-          ]);
+          );
           setSchedule(toSetSchedule(teacher.user.event));
         } else {
           setOperation("create");
@@ -115,84 +109,103 @@ export default function TeacherModePage() {
   }, [user]);
 
   return (
-    <div className="flex flex-col gap-3 overflow-y-auto max-h-96">
-      <div className="font-extrabold">Teacher settings</div>
-      <p>Feel free to try as a teacher yourself</p>
-      <div className="flex flex-col">
-        <div>
-          <h1>Description</h1>
+    <div className="bg-base-200 border border-base-300 rounded-2xl shadow-xl p-6 space-y-6 animate-fade-in">
+      <div className="space-y-1">
+        <h2 className="text-xl font-bold">Teacher profile</h2>
+        <p className="text-base-content/50 text-sm">Set up your teaching profile to start accepting students</p>
+      </div>
+
+      <div className="space-y-4">
+        {/* Description */}
+        <div className="space-y-1">
+          <SectionLabel>Short description</SectionLabel>
           <textarea
-            placeholder="Description"
-            className="textarea textarea-info"
+            placeholder="Brief description shown on your profile"
+            className="textarea textarea-bordered w-full"
+            rows={2}
             value={description ?? ""}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
-        <div>
-          <h1>Write about yourself</h1>
+
+        {/* About */}
+        <div className="space-y-1">
+          <SectionLabel>About you</SectionLabel>
           <textarea
-            placeholder="About you"
-            className="textarea textarea-info"
+            placeholder="Tell students about your teaching style, experience, etc."
+            className="textarea textarea-bordered w-full"
+            rows={3}
             value={writtingAboutYourself ?? ""}
             onChange={(e) => setWrittingAboutYourself(e.target.value)}
           />
         </div>
-        <div>
-          <p>Set your experience</p>
-          <input
-            type="number"
-            className="input"
-            value={experience ?? ""}
-            onChange={(e) => setExperience(Number(e.target.value))}
-          />
+
+        {/* Experience + Price */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <SectionLabel>Experience (years)</SectionLabel>
+            <input
+              type="number"
+              min={0}
+              className="input input-bordered w-full"
+              value={experience ?? ""}
+              onChange={(e) => setExperience(Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-1">
+            <SectionLabel>Price per hour (€)</SectionLabel>
+            <input
+              type="number"
+              min={0}
+              className="input input-bordered w-full"
+              value={pricePerHour ?? ""}
+              onChange={(e) => setPricePerHour(Number(e.target.value))}
+            />
+          </div>
         </div>
-        <div>
-          <h1 className="font-extrabold">Certificates</h1>
-          {certificates &&
-            certificates.map((cert, i) => (
-              <div key={i}>
-                <AddCertificateComponent
-                  certificate={cert}
-                  onChange={(field, value) =>
-                    handleCertificateChange(i, field, value)
-                  }
-                />
-              </div>
-            ))}
-          <button
-            className="btn btn-success"
-            onClick={() => handleCertificateCount()}
-          >
-            Add certificate
-          </button>
+
+        {/* Certificates */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <SectionLabel>Certificates</SectionLabel>
+            <button
+              className="btn btn-ghost btn-xs rounded-lg border border-dashed border-base-300 hover:border-primary/50 hover:text-primary transition-colors duration-200"
+              onClick={handleCertificateCount}
+            >
+              + Add certificate
+            </button>
+          </div>
+          {certificates.map((cert, i) => (
+            <AddCertificateComponent
+              key={i}
+              certificate={cert}
+              onChange={(field, value) => handleCertificateChange(i, field, value)}
+            />
+          ))}
         </div>
-        <div>
-          <p>Enter your price/hour in EUR</p>
-          <input
-            type="number"
-            className="input"
-            value={pricePerHour ?? ""}
-            onChange={(e) => setPricePerHour(Number(e.target.value))}
-          />
+
+        {/* Schedule */}
+        <div className="space-y-2">
+          <SectionLabel>Available time slots</SectionLabel>
+          <p className="text-xs text-base-content/40">Drag to select the hours you're available</p>
+          <ScheduleTable schedule={schedule} setSchedule={setSchedule} mode="edit" />
         </div>
-        <div>
-          <p>Select your available days</p>
-          <ScheduleTable 
-          schedule={schedule} 
-          setSchedule={setSchedule}
-          mode="edit"
-          />
-        </div>
+
         <AsyncButton
           func={handleSaveTeacher}
-          isLoadingText="Saving your teacher's data"
-          isNormalText="Save your data"
-          className="btn btn-success"
+          isLoadingText="Saving..."
+          isNormalText="Save teacher profile"
+          className="btn btn-primary w-full rounded-xl hover:-translate-y-0.5 transition-transform duration-200"
         />
       </div>
-        <ModalWindow modal={modal} modalState={setModal}>
-          <div>Saved success</div>
-        </ModalWindow>
+
+      <ModalWindow modal={modal} modalState={setModal}>
+        <div className="text-center space-y-2 py-2">
+          <div className="text-3xl">✓</div>
+          <h3 className="font-semibold text-lg">Saved successfully</h3>
+          <p className="text-base-content/55 text-sm">Your teacher profile has been updated.</p>
+        </div>
+      </ModalWindow>
     </div>
   );
 }

@@ -1,16 +1,17 @@
 import { fetchGet } from "@/utils/utils";
 import { NextRequest, NextResponse } from "next/server";
 import "dotenv/config";
+import { getUtcOffsets } from "@/scripts/server";
 
 export async function GET(req: NextRequest) {
-    const country = req.headers.get("X-Country");
+    const countryName = req.headers.get("X-Country") as string;
     try {
-        const countryCode = await fetchGet(`https://restcountries.com/v3.1/name/${country}`);
-        const timezones = await fetchGet(
-            `http://api.timezonedb.com/v2.1/list-time-zone?key=${process.env.TIMEZONE_KEY}&country=${countryCode[0].cca2}&format=json`,
-        );
-        return NextResponse.json({timezones});
+        const countriesList = await fetchGet('https://raw.githubusercontent.com/mledoze/countries/master/countries.json');
+        const offsets = getUtcOffsets(countriesList, countryName);
+        console.log(offsets);
+        return NextResponse.json(offsets);
     } catch(e) {
+        console.log(e);
         return NextResponse.json({status: 404});
     }
 }

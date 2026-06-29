@@ -27,8 +27,8 @@ export const returnLanguageWithLevels = (language: string): string[] => {
                 "HSK6",
                 "HSK7",
                 "HSK8",
-                "HSK9", 
-                "Fluent", 
+                "HSK9",
+                "Fluent",
                 "Native"
             ];
         case "Korean":

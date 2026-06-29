@@ -10,10 +10,13 @@ import AfterCallLayout from "../layouts/AfterCallLayout";
 import { useUserStore } from "@/store/userStore";
 
 export default function VideoStatesHandler() {
+  const { useRemoteParticipants } = useCallStateHooks();
   const { useCallCallingState } = useCallStateHooks();
   const callingState = useCallCallingState();
   const call = useCall();
   const user = useUserStore(state => state.user);
+  const remoteParticipants = useRemoteParticipants();
+  const teacherId = remoteParticipants[0]?.userId;
 
   const handleToggle = async (typeToggle: string) => {
     if (!call) return;
@@ -21,7 +24,7 @@ export default function VideoStatesHandler() {
       case "join":
         try {
           await call.join();
-          if(user?.role === "Student") {
+          if(user && !user.teacher) {
             await call.startTranscription();
           }
         } catch (e) {
@@ -29,10 +32,14 @@ export default function VideoStatesHandler() {
         }
         break;
       case "leave":
-        try {
-          if(user?.role === "Student") {
+        if (user && !user.teacher) {
+          try {
             await call.stopTranscription();
+          } catch {
+            // transcription may not be active
           }
+        }
+        try {
           await call.leave();
         } catch (e) {
           console.error("Failed to leave the call", e);
@@ -49,7 +56,7 @@ export default function VideoStatesHandler() {
     case CallingState.JOINED:
       return <CallLayout onLeave={handleToggle} />;
     case CallingState.LEFT:
-      return <AfterCallLayout />;
+      return <AfterCallLayout teacherId={teacherId}/>;
     case CallingState.RECONNECTING:
       return <Loading />;
     case CallingState.MIGRATING:

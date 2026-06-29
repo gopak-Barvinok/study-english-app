@@ -2,8 +2,40 @@
 
 import AsyncButton from "@/components/buttons/AsyncBtn";
 import ModalWindow from "@/components/modals/ModalWindow";
+import SignOutBtn from "@/components/buttons/loginButtons/SignOutBtn";
 import { useUserStore } from "@/store/userStore";
 import { useEffect, useState } from "react";
+
+function FormField({
+  label,
+  value,
+  placeholder,
+  onChange,
+  required,
+}: {
+  label: string;
+  value?: string;
+  placeholder: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+}) {
+  const isEmpty = required && !value;
+  return (
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-base-content/60">{label}</label>
+      <input
+        type="text"
+        defaultValue={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className={`input input-bordered w-full transition-colors duration-200 ${isEmpty ? "input-error" : ""}`}
+      />
+      {isEmpty && (
+        <p className="text-error text-xs">{label} is required</p>
+      )}
+    </div>
+  );
+}
 
 export default function GeneralSettingsPage() {
   const { user, updateUser } = useUserStore();
@@ -22,103 +54,82 @@ export default function GeneralSettingsPage() {
     }
   }, [user]);
 
-  const handleSetName = (name: string) => {
-    setName(name);
-  };
-
-  const handleSetSurname = (surname: string) => {
-    setSurname(surname);
-  };
-
-  const handleSetUsername = (username: string) => {
-    setUsername(username);
-  };
-
   const handleSaveSettings = async () => {
     if (name && surname && username) {
-      await updateUser({
-        name: name,
-        surname: surname,
-        username: username,
-      });
+      await updateUser({ name, surname, username });
       setModal(true);
     }
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="font-extrabold">Account settings</div>
-      <figure>
-        <img src={image} alt="Avatar" className="rounded-xl" />
-      </figure>
-      <input type="file" className="file-input file-input-info" />
-      {user && user.name && user.surname && user.username && (
-        <div className="flex flex-col gap-3">
-          <div>
-            <p>Your name</p>
-            <input
-              type="text"
-              defaultValue={name}
-              placeholder="Enter your name"
-              onChange={(e) => handleSetName(e.target.value)}
-              className={`input ${!name && `input-error`}`}
-            />
-            {!name && (
-              <div
-                className="tooltip tooltip-open tooltip-right tooltip-error"
-                data-tip="Name is required"
-              />
-            )}
-          </div>
-          <div>
-            <p>Your surname</p>
-            <input
-              type="text"
-              defaultValue={surname}
-              placeholder="Enter your surname"
-              onChange={(e) => handleSetSurname(e.target.value)}
-              className={`input ${!surname && `input-error`}`}
-            />
-            {!surname && (
-              <div
-                className="tooltip tooltip-open tooltip-right tooltip-error"
-                data-tip="Surname is required"
-              />
-            )}
-          </div>
-          <div>
-            <p>Your username</p>
-            <input
-              type="text"
-              defaultValue={username}
-              placeholder="Enter your username"
-              onChange={(e) => handleSetUsername(e.target.value)}
-              className={`input ${!username && `input-error`}`}
-            />
-            {!username && (
-              <div
-                className="tooltip tooltip-open tooltip-right tooltip-error"
-                data-tip="Username is required"
-              />
-            )}
-          </div>
-          <div>
-            <AsyncButton
-              func={handleSaveSettings}
-              isLoadingText="Saving"
-              isNormalText="Save settings"
-              className="btn btn-success"
-            />
-          </div>
+    <div className="bg-base-200 border border-base-300 rounded-2xl shadow-xl p-6 space-y-6 animate-fade-in">
+      <div className="space-y-1">
+        <h2 className="text-xl font-bold">Account settings</h2>
+        <p className="text-base-content/50 text-sm">Manage your profile information</p>
+      </div>
+
+      {/* Avatar */}
+      <div className="flex items-center gap-4">
+        {image && (
+          <img
+            src={image}
+            alt="Avatar"
+            className="w-16 h-16 rounded-xl object-cover ring-2 ring-base-300"
+          />
+        )}
+        <div className="space-y-1 flex-1">
+          <label className="text-sm font-medium text-base-content/60">Profile photo</label>
+          <input
+            type="file"
+            accept="image/*"
+            className="file-input file-input-bordered file-input-sm w-full"
+          />
+        </div>
+      </div>
+
+      {user?.name && user?.surname && user?.username && (
+        <div className="space-y-4">
+          <FormField
+            label="First name"
+            value={name}
+            placeholder="Enter your name"
+            onChange={setName}
+            required
+          />
+          <FormField
+            label="Last name"
+            value={surname}
+            placeholder="Enter your surname"
+            onChange={setSurname}
+            required
+          />
+          <FormField
+            label="Username"
+            value={username}
+            placeholder="Enter your username"
+            onChange={setUsername}
+            required
+          />
+          <AsyncButton
+            func={handleSaveSettings}
+            isLoadingText="Saving..."
+            isNormalText="Save changes"
+            className="btn btn-primary w-full rounded-xl hover:-translate-y-0.5 transition-transform duration-200"
+          />
         </div>
       )}
-      {modal && (
-        <ModalWindow>
-          <div>
-            Saved success
-          </div>
-        </ModalWindow>
-      )}
+
+      <div className="pt-2 border-t border-base-300">
+        <SignOutBtn />
+      </div>
+
+      <ModalWindow modal={modal} modalState={setModal}>
+        <div className="text-center space-y-2 py-2">
+          <div className="text-3xl">✓</div>
+          <h3 className="font-semibold text-lg">Saved successfully</h3>
+          <p className="text-base-content/55 text-sm">Your profile has been updated.</p>
+        </div>
+      </ModalWindow>
     </div>
   );
 }

@@ -100,7 +100,7 @@ export default function SetUserParamsPage() {
   }, [choosedLanguages]);
 
   return (
-    <div>
+    <div className="flex-1 flex items-center justify-center">
       {pageState === PageState.SET_LANG_PAGE && (
         <SetLanguageComponent
           pageIsReady={handleLanguagePage}

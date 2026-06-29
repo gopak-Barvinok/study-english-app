@@ -37,7 +37,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               email,
               name: profile.name?.split(" ")[0] || null,
               surname: profile.name?.split(" ")[1] || null,
-              username: email.split('@')[0],
+              username: `${email.split('@')[0]}_${Math.random().toString(36).slice(2, 6)}`,
               image: profile.avatar_url || profile.picture || null,
               isAdmin: false,
               registrationDate: new Date(),
@@ -63,9 +63,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.email = dbUser.email;
       }
 
-      if (trigger === "update" && token.id) {
-      }
-
       return token;
     },
     async session({ session, token }) {
@@ -89,7 +86,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "jwt",
     maxAge: 24 * 60 * 60,
   },
-  debug: true,
   jwt: {
     maxAge: 24 * 60 * 60,
   }

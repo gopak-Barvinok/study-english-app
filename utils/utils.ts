@@ -5,11 +5,10 @@ export const fetchGet = async (
     const response = await fetch(url, {
         method: 'GET',
         headers: {
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
             ...headers,
         },
     });
-    console.log("Response:", response);
     if(response.ok) {
         const answerData = await response.json();
         return answerData;
@@ -22,6 +21,7 @@ export const fetchPost = async (
     url: string,
     body: any,
 ) => {
+    console.log(url);
     const response = await fetch(url, {
         method: 'POST',
         headers: {

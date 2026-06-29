@@ -1,4 +1,4 @@
-import { createChat, createRoom, createScheduleInDatabase } from "@/lib/database";
+import { createChat, createScheduleInDatabase, findChatBetweenUsers } from "@/lib/database";
 import { NextRequest, NextResponse } from "next/server";
 import { StreamChat } from "stream-chat";
 
@@ -13,28 +13,33 @@ export async function POST(req: NextRequest) {
     const { studentId, teacherId, schedule } = await req.json();
 
     try {
-        console.log(schedule);
         await createScheduleInDatabase(studentId, schedule);
-        const channelId = crypto.randomUUID();
-        console.log(channelId);
-        const channel = serverClient.channel("messaging", channelId, {
-            members: [studentId, teacherId],
-            created_by_id: studentId,
-        });
-        await createChat([studentId, teacherId], channelId);
+
+        const existingChat = await findChatBetweenUsers(studentId, teacherId);
+        let channelId: string;
+
+        if (existingChat) {
+            channelId = existingChat.id;
+        } else {
+            channelId = crypto.randomUUID();
+            const newChannel = serverClient.channel("messaging", channelId, {
+                members: [studentId, teacherId],
+                created_by_id: studentId,
+            });
+            await newChannel.create();
+            await createChat([studentId, teacherId], channelId);
+        }
+
         const generatedRoomId = crypto.randomUUID();
-        console.log("Sending message to channel:", channel.id);
-        console.log("studentId:", studentId);
-        await channel.create();
+        const channel = serverClient.channel("messaging", channelId);
         await channel.sendMessage({
-            text: `Hello! I am proposing a lesson on ${schedule[0]}. If you agree, please follow the special link below:\n${url}/app/create-lesson/${channelId}/${studentId}/${generatedRoomId}/${schedule[0]}`,
+            text: `Hello! I am proposing a lesson on ${schedule[0]}. If you agree, please follow the special link below:\n${url}/app/create-lesson/${channelId}/${studentId}/${generatedRoomId}/${encodeURIComponent(schedule[0])}`,
             user_id: studentId,
         });
-        console.log("Message sent");
+
         return NextResponse.json({ status: 200 });
     } catch (e) {
         console.error("Error:", e);
         return NextResponse.json({ error: String(e) });
     }
-
 }

@@ -1,6 +1,67 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.45s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.55s ease-out forwards;
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+
+/* Override night theme primary to violet */
+[data-theme="night"] {
+  --color-primary: oklch(58% 0.2 145);
+  --color-primary-content: oklch(98% 0.01 145);
+  --color-secondary: oklch(65% 0.18 160);
+}
+
+/* Stream Chat dark theme overrides */
+.str-chat {
+  --str-chat__primary-color: #16a34a;
+  --str-chat__active-primary-color: #15803d;
+  --str-chat__on-primary-color: #ffffff;
+  --str-chat__background-color: #191e24;
+  --str-chat__secondary-background-color: #1d232a;
+  --str-chat__primary-surface-color: #2d1f5e;
+  --str-chat__primary-surface-color-low-emphasis: #1e1530;
+  --str-chat__surface-color: #15191e;
+  --str-chat__secondary-surface-color: #191e24;
+  --str-chat__tertiary-surface-color: #1d232a;
+  --str-chat__text-color: #a6adbb;
+  --str-chat__text-low-emphasis-color: #566070;
+  --str-chat__disabled-color: #334155;
+  --str-chat__box-shadow-color: rgba(0, 0, 0, 0.4);
+  --str-chat__overlay-color: rgba(15, 18, 24, 0.85);
+}
+
 .str-video__participant-view {
   width: 500px;
   height: 450px;

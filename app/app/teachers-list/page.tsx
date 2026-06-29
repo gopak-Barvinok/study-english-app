@@ -7,14 +7,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { fetchGet } from "@/utils/utils";
 import type { LanguageItem } from "@/types/c-types";
-import { gmtOffsetToString } from "@/scripts/client";
 import ModalWindow from "@/components/modals/ModalWindow";
 import BookTeacherInModal from "@/components/modals/BookTeacherInModal";
 
 export default function CallsPage() {
   const [usersList, setTeachersList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [modal, setModal] = useState<boolean>(false);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(
+    null,
+  );
   const router = useRouter();
   const { user } = useUserStore();
 
@@ -38,82 +39,122 @@ export default function CallsPage() {
       body: JSON.stringify(newBody),
     });
     if (resp.ok) {
-      setModal(false);
+      setSelectedTeacherId(null); 
       router.push("/app/chats");
     }
-  };
-
-  const handleClickToBook = (bool: boolean) => {
-    setModal(bool);
   };
 
   if (isLoading) return <Loading />;
 
   return (
-    <div className="overflow-y-auto">
+    <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto py-6 gap-4">
       {usersList.length > 0 ? (
         usersList.map((teacher) => (
           <div
             key={teacher.id}
-            className="card bg-base-100 w-95 shadow-sm mb-3 items-center text-center"
+            className="bg-base-200 border border-base-300 rounded-2xl shadow-xl w-96 hover:-translate-y-1 transition-transform duration-300 animate-fade-in"
           >
-            <figure className="justify-center pt-5">
-              <img
-                src={teacher.user.image}
-                alt="Avatar"
-                className="rounded-xl"
-              />
-            </figure>
-            <div className="card-body">
-              <div className="items-start text-start">
+            <div className="p-8 flex flex-col items-center gap-5">
+              {teacher.user.image ? (
+                <img
+                  src={teacher.user.image}
+                  alt="Avatar"
+                  className="w-20 h-20 rounded-xl object-cover"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-xl bg-primary flex items-center justify-center text-primary-content text-3xl font-bold">
+                  {teacher.user.name?.[0]?.toUpperCase() ?? "?"}
+                </div>
+              )}
+              <div className="w-full space-y-1.5 text-sm">
                 <div className="flex gap-1 items-baseline">
-                  <h1 className="card-title">Name:</h1>
-                  <p>{teacher.user.name}</p>
+                  <span className="font-semibold text-base-content">Name:</span>
+                  <span className="text-base-content/70">
+                    {teacher.user.name}
+                  </span>
                 </div>
                 <div className="flex gap-1 items-baseline">
-                  <h1 className="card-title">Surname:</h1>
-                  <p>{teacher.user.surname}</p>
+                  <span className="font-semibold text-base-content">
+                    Surname:
+                  </span>
+                  <span className="text-base-content/70">
+                    {teacher.user.surname}
+                  </span>
                 </div>
                 <div className="flex gap-1 items-baseline">
-                  <h1 className="card-title">Age:</h1>
-                  <p>{calculateAge(teacher.user.age)}</p>
+                  <span className="font-semibold text-base-content">Age:</span>
+                  <span className="text-base-content/70">
+                    {calculateAge(teacher.user.age)}
+                  </span>
                 </div>
-                <div className="flex gap-1 items-baseline">
-                  <h1 className="card-title">Languages:</h1>
+                <div className="flex gap-1 items-baseline flex-wrap">
+                  <span className="font-semibold text-base-content">
+                    Languages:
+                  </span>
                   {teacher?.user.languages &&
                     (teacher?.user.languages as LanguageItem[]).map(
                       (item, i) => (
-                        <p key={i}>
+                        <span key={i} className="text-base-content/70">
                           {item?.languageName}: {item?.level}
-                        </p>
+                        </span>
                       ),
                     )}
                 </div>
                 <div className="flex gap-1 items-baseline">
-                  <h1 className="card-title">Location:</h1>
-                  <p>{teacher.user.location}</p>
+                  <span className="font-semibold text-base-content">
+                    Location:
+                  </span>
+                  <span className="text-base-content/70">
+                    {teacher.user.location}
+                  </span>
                 </div>
                 <div className="flex gap-1 items-baseline">
-                  <h1 className="card-title">Timezone:</h1>
-                  <p>{gmtOffsetToString(Number(teacher?.user.timezone))}</p>
+                  <span className="font-semibold text-base-content">
+                    Timezone:
+                  </span>
+                  <span className="text-base-content/70">
+                    {teacher?.user.timezone}
+                  </span>
                 </div>
               </div>
-              <div className="card-actions justify-center">
-                <button
-                  className="btn btn-success"
-                  onClick={() => handleClickToBook(true)}
-                >
-                  Book lesson
-                </button>
-              </div>
-              <ModalWindow modal={modal} modalState={setModal}>
-                <BookTeacherInModal uploadToBook={handleUploadToBook} teacherId={teacher.id} userId={user.id} />
+              <button
+                onClick={() => setSelectedTeacherId(teacher.id)}
+                className="btn btn-primary w-full rounded-xl hover:-translate-y-0.5 transition-transform duration-200"
+              >
+                Book lesson
+              </button>
+              <ModalWindow
+                modal={selectedTeacherId === teacher.id}
+                modalState={(v) => !v && setSelectedTeacherId(null)}
+              >
+                <BookTeacherInModal 
+                teacherId={teacher.id} 
+                userId={user.id} 
+                uploadToBook={handleUploadToBook}
+                />
               </ModalWindow>
             </div>
           </div>
         ))
       ) : (
-        <div>No teachers found </div>
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 text-base-content/40 animate-fade-in">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-12 h-12 opacity-30"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            />
+          </svg>
+          <p className="text-sm">No teachers found</p>
+          <p className="text-xs">Check back later or adjust your preferences</p>
+        </div>
       )}
     </div>
   );

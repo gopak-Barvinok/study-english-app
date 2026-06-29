@@ -1,5 +1,8 @@
-import { createAndUpdateMessages, updateTranscribation } from "@/lib/database";
-//inputGeneratedCards, requestRoomParticipants,
+import {
+    createAndUpdateMessages,
+    updateTranscribation,
+    inputGeneratedCards,
+} from "@/lib/database";
 import { generateFlashCards } from "@/lib/groq";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -39,9 +42,11 @@ export async function POST(req: NextRequest) {
 
                 console.log("Parsed transcription segments:", sentences);
                 await updateTranscribation(roomId, sentences);
+                
+                if(sentences.length === 0) break;
+
                 const cardsData = await generateFlashCards(sentences) as any[];
-                // const participants = await requestRoomParticipants(roomId);
-                // await inputGeneratedCards(participants?.participants_id!, cardsData);
+                await inputGeneratedCards(roomId, cardsData);
                 break;
             case 'call.transcription_failed':
                 console.log("Transcription failed", event);
